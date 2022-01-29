@@ -1,6 +1,8 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -25,42 +27,83 @@
 
 int main(int argc, char *argv[])
 {
-  //read_png(argv[1]);
-  //write_png(argv[2]);
-
-	unsigned char* input_pixels;
-	unsigned char* output_pixels;
-	int width, height, channels;
-	int out_width, out_height;
-
+	unsigned char* input_img;
+	unsigned char* resized_img;
+  //unsigned char* output_img;
+	int input_width, input_height, input_channels;
+	int resized_width, resized_height;
   int Y;
+
+  // input flags
+  int aflag = 0;
+  char *bvalue = NULL;
+  char *cvalue = NULL;
+  int index;
+  int c;
+
+  opterr = 0;
+  while ((c = getopt (argc, argv, "a:b:c:")) != -1) {
+    switch (c)
+      {
+      case 'a':
+        aflag = atoi(optarg);
+        break;
+      case 'b':
+        bvalue = optarg;
+        break;
+      case 'c':
+        cvalue = optarg;
+        break;
+      case '?':
+        if (optopt == 'c')
+          fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+        else if (isprint (optopt))
+          fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+        else
+          fprintf (stderr,
+                   "Unknown option character `\\x%x'.\n",
+                   optopt);
+        return 1;
+      default:
+        abort ();
+      }
+  }
+
+  printf ("aflag = %d, bflag = %s, cvalue = %s\n",
+          aflag, bvalue, cvalue);
+
+  for (index = optind; index < argc; index++) {
+    printf ("Non-option argument %s\n", argv[index]);
+  }
   
+
   //debug
   //struct timeval start, end;
   //double time_taken = 0;
 
   // read input image to memory
-	input_pixels = stbi_load(argv[1], &width, &height, &channels, 0);
+	input_img = stbi_load(argv[1], &input_width, &input_height, &input_channels, 0);
 
   // allocate memory for resized image
-	out_width = width/20;
-	out_height = height/20;
-  size_t output_pixels_size = out_width * out_height * channels;
-	output_pixels = (unsigned char*) malloc(output_pixels_size);
-  if(output_pixels == NULL) {
+	resized_width = input_width/20;
+	resized_height = input_height/20;
+  size_t resized_img_size = resized_width * resized_height * input_channels;
+	resized_img = (unsigned char*) malloc(resized_img_size);
+  if(resized_img == NULL) {
       printf("Unable to allocate memory for the output image.\n");
       return 1;
   }
 
-	stbir_resize_uint8(input_pixels, width, height, 0, output_pixels, out_width, out_height, 0, channels);
+	stbir_resize_uint8(input_img, input_width, input_height, 0, resized_img, resized_width, resized_height, 0, input_channels);
+  stbi_image_free(input_img);
 
-  
-  //int gray_channels = channels == 4 ? 2 : 1; //greyscale debug
-  //size_t grayscale_pixels = out_width * out_height * gray_channels; //greyscale debug
-
-  // OpenCV's grayscale conversion algorithm
+  // Convert to greyscale
+  // ITU-R Recommendation BT.601 luma calculation
+  // https://en.wikipedia.org/wiki/Luma_%28video%29#Rec._601_luma_versus_Rec._709_luma_coefficients
+  // same as OpenCV's grayscale conversion algorithm
+  // https://docs.opencv.org/2.4/modules/imgproc/doc/miscellaneous_transformations.html
   // Y = 0.299 * R + 0.587 * G + 0.114 * B
-  for(unsigned char *p = output_pixels; p != output_pixels + output_pixels_size; p += channels) {
+  for(unsigned char *p = resized_img; p != resized_img + resized_img_size; p += input_channels) {
     Y = (uint8_t)((*p * 0.299)/*R*/ + 
             (*(p + 1) * 0.587)/*G*/ + 
             (*(p + 2) * 0.114)/*B*/);
@@ -69,54 +112,12 @@ int main(int argc, char *argv[])
   Y = 0;
   printf("%d, ", Y);
 
-  stbi_write_png("output_color.png", out_width, out_height, channels, output_pixels, 0);
-  //stbi_write_jpg("output_color.jpg", out_width, out_height, channels, output_pixels, 85);
+  //stbi_write_png("output_color.png", out_width, out_height, channels, output_pixels, 0);
+  stbi_write_jpg("output.jpg", resized_width, resized_height, input_channels, resized_img, 85);
   //stbi_write_jpg("output_gray.jpg", out_width, out_height, gray_channels, grayscale_pixels, 85);
 
-  stbi_image_free(input_pixels);
-  stbi_image_free(output_pixels);
+  stbi_image_free(resized_img);
 
-/*
-  int width, height, channels;
-  unsigned char *img = stbi_load(argv[1], &width, &height, &channels, 0);
-  if(img == NULL) {
-    printf("Error in loading the image\n");
-    exit(1);
-  }
-  printf("Loaded image with a width of %dpx, a height of %dpx and %d channels\n", width, height, channels);
-
-  // Convert the input image to grayscale
-  size_t img_size = width * height * channels;
-  int gray_channels = channels == 4 ? 2 : 1;
-  size_t gray_img_size = width * height * gray_channels;
-
-  unsigned char *gray_img = malloc(gray_img_size);
-  if(gray_img == NULL) {
-      printf("Unable to allocate memory for the gray image.\n");
-      return 1;
-  }
-
-  for(unsigned char *p = img, *pg = gray_img; p != img + img_size; p += channels, pg += gray_channels) {
-    *pg = (uint8_t)((*p + *(p + 1) + *(p + 2))/3.0);
-    if(channels == 4) {
-      *(pg + 1) = *(p + 3);
-    }
-  }
-
-  stbi_write_jpg("./photos/output1.jpg", width, height, gray_channels, gray_img, 80);
-
-
-  size_t resize_img_size = width * height * gray_channels;
-  unsigned char *resize_img = malloc(resize_img_size);
-
-  stbir_resize_uint8(img,        width,   height,   0,
-                     resize_img, width, height, 0, 0);
-  stbi_write_jpg("./photos/output2.jpg", width/8, height/8, gray_channels, resize_img, 80);                
-
-  stbi_image_free(img);
-  stbi_image_free(gray_img);
-  stbi_image_free(resize_img);
-*/
 return 0;
 }
 
