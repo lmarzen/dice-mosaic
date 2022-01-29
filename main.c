@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
 	unsigned char* output_pixels;
 	int width, height, channels;
 	int out_width, out_height;
+
+  int Y;
   
   //debug
   //struct timeval start, end;
@@ -43,7 +45,8 @@ int main(int argc, char *argv[])
   // allocate memory for resized image
 	out_width = width/20;
 	out_height = height/20;
-	output_pixels = (unsigned char*) malloc(out_width*out_height*channels);
+  size_t output_pixels_size = out_width * out_height * channels;
+	output_pixels = (unsigned char*) malloc(output_pixels_size);
   if(output_pixels == NULL) {
       printf("Unable to allocate memory for the output image.\n");
       return 1;
@@ -51,26 +54,24 @@ int main(int argc, char *argv[])
 
 	stbir_resize_uint8(input_pixels, width, height, 0, output_pixels, out_width, out_height, 0, channels);
 
-  // Convert the input image to grayscale
-  size_t output_pixels_size = out_width * out_height * channels;
-  int gray_channels = channels == 4 ? 2 : 1;
-  size_t gray_img_size = out_width * out_height * gray_channels;
+  
+  //int gray_channels = channels == 4 ? 2 : 1; //greyscale debug
+  //size_t grayscale_pixels = out_width * out_height * gray_channels; //greyscale debug
 
-
-  unsigned char *grayscale_pixels = malloc(gray_img_size);
-  if(grayscale_pixels == NULL) {
-      printf("Unable to allocate memory for the grayscale image.\n");
-      return 1;
+  // OpenCV's grayscale conversion algorithm
+  // Y = 0.299 * R + 0.587 * G + 0.114 * B
+  for(unsigned char *p = output_pixels; p != output_pixels + output_pixels_size; p += channels) {
+    Y = (uint8_t)((*p * 0.299)/*R*/ + 
+            (*(p + 1) * 0.587)/*G*/ + 
+            (*(p + 2) * 0.114)/*B*/);
   }
+  
+  Y = 0;
+  printf("%d, ", Y);
 
-  for(unsigned char *p = output_pixels, *pg = grayscale_pixels; p != output_pixels + output_pixels_size; p += channels, pg += gray_channels) {
-    *pg = (uint8_t)((*p + *(p + 1) + *(p + 2))/3.0);
-    if(channels == 4) {
-      *(pg + 1) = *(p + 3);
-    }
-  }
-
-  stbi_write_jpg("output.jpg", out_width, out_height, gray_channels, grayscale_pixels, 85);
+  stbi_write_png("output_color.png", out_width, out_height, channels, output_pixels, 0);
+  //stbi_write_jpg("output_color.jpg", out_width, out_height, channels, output_pixels, 85);
+  //stbi_write_jpg("output_gray.jpg", out_width, out_height, gray_channels, grayscale_pixels, 85);
 
   stbi_image_free(input_pixels);
   stbi_image_free(output_pixels);
