@@ -4,30 +4,36 @@ dice-mosaic  -  Generate dice mosaics from jpeg/png images. Written in C.
 
 Options
 ---
-`-i [filename]`
->Input image(jpeg/png) filename or path.
+-i [filename]
+<ul>
+Input image(jpeg/png) filename or path.
+</ul><ul>
+Default 'input.jpg'
+</ul>
 
->Default 'input.jpg'
-
-`-o [filename]`
->Output image filename or path. Output format is .jpg.
-
->Default 'output.jpg`
-
-`-s [number]`
->Factor to scale input image by. Must be greater than 0. After scaling, 1 pixel = 1 dice.
-
->Default is 0.05
-                    
->Cannot be used in conjunction with `-w` or `-h`.
-
-`-w [number]`
->Alternative scaling option, will scale an image to a specified number of dice in width while maintaining aspect ratio. Must be an integer greater than 0.
-
->Cannot be used in conjunction with `-s` or `-h`.
-
-`-h [number]`
->Alternative scaling option, will scale an image to a specified number of dice in height while mainataining aspect ratio. Must be an integer greater than 0.
-
->Cannot be used in conjunction with `-s` or `-w`.
-
+-o [filename]
+<ul>
+Output image filename or path. Output format is .jpg.
+</ul><ul>
+Default 'output.jpg`
+</ul>
+-s [number]
+<ul>
+Factor to scale input image by. Must be greater than 0. After scaling, 1 pixel is equivalent to 1 dice.
+</ul><ul>
+Default is 0.05
+</ul><ul>              
+Cannot be used in conjunction with `-w` or `-h`.
+</ul>
+-w [number]
+<ul>
+Alternative scaling option, will scale an image to a specified number of dice in width while maintaining aspect ratio. Must be an integer greater than 0.
+</ul><ul>
+Cannot be used in conjunction with `-s` or `-h`.
+</ul>
+-h [number]
+<ul>
+Alternative scaling option, will scale an image to a specified number of dice in height while mainataining aspect ratio. Must be an integer greater than 0.
+</ul><ul>
+Cannot be used in conjunction with `-s` or `-w`.
+</ul>
