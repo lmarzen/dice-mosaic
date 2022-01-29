@@ -61,5 +61,5 @@ Default is to use a mix of both black and white to achieve 12 grayscale values.
 </ul>
 -f
 <ul>
-Invert the colors of the image.
+Invert(flip) the colors of the image.
 </ul>
