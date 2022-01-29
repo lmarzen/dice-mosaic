@@ -11,14 +11,14 @@ Options
 <ul>
 Input image(jpeg/png) filename or path.
 </ul><ul>
-Default 'input.jpg'
+Default is 'input.jpg'
 </ul>
 
 -o [filename]
 <ul>
 Output image filename or path. Output format is .jpg.
 </ul><ul>
-Default 'output.jpg`
+Default  is 'output.jpg`
 </ul>
 -s [number]
 <ul>
