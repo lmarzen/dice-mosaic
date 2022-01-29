@@ -31,19 +31,19 @@ Factor to scale input image by. Must be greater than 0. After scaling, 1 pixel i
 </ul><ul>
 Default is 0.05
 </ul><ul>              
-Cannot be used in conjunction with `-w` or `-h`.
+Cannot be used in conjunction with -w or -h.
 </ul>
 -w [number]
 <ul>
 Alternative scaling option, will scale an image to a specified number of dice in width while maintaining aspect ratio. Must be an integer greater than 0.
 </ul><ul>
-Cannot be used in conjunction with `-s` or `-h`.
+Cannot be used in conjunction with -s or -h.
 </ul>
 -h [number]
 <ul>
 Alternative scaling option, will scale an image to a specified number of dice in height while mainataining aspect ratio. Must be an integer greater than 0.
 </ul><ul>
-Cannot be used in conjunction with `-s` or `-w`.
+Cannot be used in conjunction with -s or -w.
 </ul>
 -l [filename]
 <ul>
