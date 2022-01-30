@@ -293,76 +293,51 @@ int main(int argc, char *argv[])
       return 1;
   }
 
-  uint32_t x = 0, y = 0;
+  uint32_t x = 0;
   unsigned char *write_p = output_img;
-  for(unsigned char *write_p = output_img; write_p != output_img + output_img_size; write_p++) {
-  //   Y = (int32_t)((*read_p * 0.299)/*R*/ + 
-  //           (*(read_p + 1) * 0.587)/*G*/ + 
-  //           (*(read_p + 2) * 0.114)/*B*/);
-    *write_p = 255;
-  }
 
-  *write_p = output_img;
-  for (uint32_t i = 0; i < dice_resolution; i++) {
-    for (uint32_t j = 0; j < dice_resolution; j++) {
-      if (i == 0 || j == 0) {
-        *(write_p + i + (j * output_width) ) = 50; // gray border between dice
-      } else {
-        *(write_p + i + (j * output_width) ) = 200;
-        // TODO // set die color
-      }
-
-    }
-  }
-
-
-
-  // // Calculate greyscale values
-  // // ITU-R Recommendation BT.601 luma calculation
-  // // https://en.wikipedia.org/wiki/Luma_%28video%29#Rec._601_luma_versus_Rec._709_luma_coefficients
-  // // same as OpenCV's grayscale conversion algorithm
-  // // https://docs.opencv.org/2.4/modules/imgproc/doc/miscellaneous_transformations.html
-  // // Y = 0.299 * R + 0.587 * G + 0.114 * B
-  // for(unsigned char *read_p = resized_img; read_p != resized_img + resized_img_size; read_p += input_channels) {
-  //   Y = (int32_t)((*read_p * 0.299)/*R*/ + 
-  //           (*(read_p + 1) * 0.587)/*G*/ + 
-  //           (*(read_p + 2) * 0.114)/*B*/);
+  // Calculate greyscale values
+  // ITU-R Recommendation BT.601 luma calculation
+  // https://en.wikipedia.org/wiki/Luma_%28video%29#Rec._601_luma_versus_Rec._709_luma_coefficients
+  // same as OpenCV's grayscale conversion algorithm
+  // https://docs.opencv.org/2.4/modules/imgproc/doc/miscellaneous_transformations.html
+  // Y = 0.299 * R + 0.587 * G + 0.114 * B
+  for(unsigned char *read_p = resized_img; read_p != resized_img + resized_img_size; read_p += input_channels) {
+    Y = (int32_t)((*read_p * 0.299)/*R*/ + 
+            (*(read_p + 1) * 0.587)/*G*/ + 
+            (*(read_p + 2) * 0.114)/*B*/);
 
     
-  //   // apply contrast and brightness modifiers if nessesary.
-  //   // OpenCV's brightness and contrast adjustments algorithm
-  //   // https://docs.opencv.org/2.4/doc/tutorials/core/basic_linear_transform/basic_linear_transform.html
-  //   // f(x) = a(x) + b
-  //   if (contrast_modifier != 1 || brightness_modifier != 0) {
-  //     Y = contrast_modifier * Y + brightness_modifier;
-  //     snap_to_range(&Y);
-  //   }
-  //   dice_value = ceil(grayscale_steps * Y / 255);
+    // apply contrast and brightness modifiers if nessesary.
+    // OpenCV's brightness and contrast adjustments algorithm
+    // https://docs.opencv.org/2.4/doc/tutorials/core/basic_linear_transform/basic_linear_transform.html
+    // f(x) = a(x) + b
+    if (contrast_modifier != 1 || brightness_modifier != 0) {
+      Y = contrast_modifier * Y + brightness_modifier;
+      snap_to_range(&Y);
+    }
+    dice_value = ceil(grayscale_steps * Y / 255);
 
 
-  //   for (uint32_t i = 0; i < dice_resolution; i++) {
-  //     for (uint32_t j = 0; j < dice_resolution; j++) {
-  //       if (i == 0 || j == 0) {
-  //         *(write_p + i + (j * dice_resolution * output_width) ) = 50; // gray border between dice
-  //       } else {
-  //         *(write_p + i + (j * dice_resolution * output_width) ) = Y;
-  //         // TODO // set die color
-  //       }
+    for (uint32_t i = 0; i < dice_resolution; i++) {
+      for (uint32_t j = 0; j < dice_resolution; j++) {
+        if (i == 0 || j == 0) {
+          *(write_p + i + (j * output_width) ) = 50; // gray border between dice
+        } else {
+          *(write_p + i + (j * output_width) ) = Y;  // fill dice color
+          // TODO // set die color
+        }
 
-  //     }
-  //   }
-  //   // update x and y position
-  //   if (write_p - output_img > output_width * 100){
-  //     // do nothing
-  //   } else {
-  //     x += dice_resolution;
-  //     write_p += dice_resolution;
-  //     if (x > output_width) {
-  //       x = 0;
-  //       write_p += output_width * dice_resolution;
-  //     }
-  //   }     
-  // }
+      }
+    }
+    
+    x += dice_resolution;
+    write_p += dice_resolution;
+    if (x > output_width - dice_resolution) {
+      write_p += ((dice_resolution - 1) * output_width);
+      x = 0;
+    }
+  }
 
 
   // debug
