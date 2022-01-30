@@ -17,6 +17,7 @@
 
 enum scaling_method{X_FACTOR, TO_WIDTH, TO_HEIGHT, ALLOWABLE_DIE};
 enum image_file_type{JPG, PNG};
+enum dice_color{BW = -1, B = 0, W = 255};
 
 const int32_t DOT_POSITIONS[6][12] = {
     { 0, 0},
@@ -100,7 +101,7 @@ int main(int argc, char *argv[])
   int32_t     scaling_limit = 0;
   char        *output_txt_filepath_ptr = "output.txt";
   uint32_t    grayscale_steps = 12;
-  uint32_t    invert_colors = 0;
+  enum        dice_color selected_dice_color = BW;
   uint32_t    list_output_enabled = 0;
   uint32_t    jpeg_quality = 85;
   enum        image_file_type output_file_type = PNG;
@@ -174,13 +175,13 @@ int main(int argc, char *argv[])
       case 'g':
         if (strcmp(optarg,"m") == 0) {
           grayscale_steps = 12;
-          invert_colors = 0;
+          selected_dice_color = BW;
         } else if (strcmp(optarg,"b") == 0) {
           grayscale_steps = 6;
-          invert_colors = 0;
+          selected_dice_color = B;
         } else if (strcmp(optarg,"w") == 0) {
           grayscale_steps = 6;
-          invert_colors = 1;
+          selected_dice_color = W;
         } else {
           printf("Invalid argument for option -c.\n");
           return 1;
@@ -316,18 +317,24 @@ int main(int argc, char *argv[])
       Y = contrast_modifier * Y + brightness_modifier;
       snap_to_range(&Y);
     }
-    dice_value = ceil(grayscale_steps * Y / 255);
-
+    dice_value = ceil( ((double) grayscale_steps) * Y / 255);
+    if (dice_value == 0) {
+      dice_value = 1;
+    }
 
     for (uint32_t i = 0; i < dice_resolution; i++) {
       for (uint32_t j = 0; j < dice_resolution; j++) {
         if (i == 0 || j == 0) {
           *(write_p + i + (j * output_width) ) = 50; // gray border between dice
-        } else {
-          *(write_p + i + (j * output_width) ) = Y;  // fill dice color
-          // TODO // set die color
+        } else if (selected_dice_color == BW) {
+          if (dice_value <= 6) {
+            *(write_p + i + (j * output_width) ) = B;
+          } else {
+            *(write_p + i + (j * output_width) ) = W;
+          }
+        } else if (selected_dice_color == B || selected_dice_color == W) { 
+          *(write_p + i + (j * output_width) ) = selected_dice_color;
         }
-
       }
     }
     
