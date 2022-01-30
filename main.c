@@ -41,22 +41,24 @@ int main(int argc, char *argv[])
 	unsigned char* input_img;
 	unsigned char* resized_img;
   //unsigned char* output_img;
-	int input_width, input_height, input_channels;
-	int resized_width, resized_height;
+	int32_t input_width, input_height, input_channels;
+	int32_t resized_width, resized_height;
   size_t resized_img_size;
-  int Y;
+  uint8_t Y;
 
   // options
   char         *input_filepath_ptr = "input.jpg";
   char         *output_filepath_ptr = "output.jpg";
-  int          scaling_method_selected = 0;
+  uint8_t      scaling_method_selected = 0;
   enum         scaling_method selected_scaling_method = X_FACTOR;
   double       scaling_factor = 0.05;
-  int          scaling_limit = 0;
+  uint32_t     scaling_limit = 0;
+  char         *output_txt_filepath_ptr = "output.txt";
+  uint8_t      list_output_enabled = 0;
+  uint8_t      invert_colors = 0;
 
-  int index;
-  int c;
-
+  uint32_t c,i;
+ 
   // process option flags
   opterr = 0;
   while ((c = getopt (argc, argv, "i:o:x:w:h:m:l:c:f")) != -1) {
@@ -111,6 +113,25 @@ int main(int argc, char *argv[])
           return 1;
         }
         break;
+      case 'l':
+        output_txt_filepath_ptr = optarg;
+        list_output_enabled = 1;
+        break;
+      case 'c':
+        if (strcmp(optarg,"m") == 0) {
+          // TODO
+        } else if (strcmp(optarg,"b") == 0) {
+          // TODO
+        } else if (strcmp(optarg,"w") == 0) {
+          // TODO
+        } else {
+          printf("Invalid argument for option -c.\n");
+          return 1;
+        }
+        break;
+      case 'f':
+        invert_colors = 1;
+        break;
       case '?':
         if (optopt == 'i' || optopt == 'o' || optopt == 'x' || optopt == 'w' || 
             optopt == 'h' || optopt == 'm' || optopt == 'l' || optopt == 'c')
@@ -123,10 +144,10 @@ int main(int argc, char *argv[])
       default:
         return 1;
     }
-  }
+  } // end while-loop
 
-  for (index = optind; index < argc; index++) {
-    printf ("Non-option argument %s\n", argv[index]);
+  for (i = optind; i < argc; i++) {
+    printf ("Non-option argument %s\n", argv[i]);
   }
 
   //debug
@@ -158,7 +179,8 @@ int main(int argc, char *argv[])
       resized_width = ceil( ((double) input_width) / input_height * scaling_limit);
       break;
     case ALLOWABLE_DIE:
-
+      resized_width = (int32_t) (sqrt(scaling_limit) * sqrt(input_width) / sqrt(input_height) );
+      resized_height = (uint32_t) (sqrt(scaling_limit) * sqrt(input_height) / sqrt(input_width) );
       break;
     default:
       return 1;
@@ -174,7 +196,7 @@ int main(int argc, char *argv[])
 	stbir_resize_uint8(input_img, input_width, input_height, 0, resized_img, resized_width, resized_height, 0, input_channels);
   stbi_image_free(input_img);
 
-  // Convert to greyscale
+  // Calculate greyscale values
   // ITU-R Recommendation BT.601 luma calculation
   // https://en.wikipedia.org/wiki/Luma_%28video%29#Rec._601_luma_versus_Rec._709_luma_coefficients
   // same as OpenCV's grayscale conversion algorithm
