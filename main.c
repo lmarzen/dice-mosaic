@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -25,16 +26,35 @@
   printf("program took an average of %f seconds to execute\n", time_taken / 100);
 */
 
-void check_scale_arg (char flag, double user_arg) {
-  if (user_arg <= 0) {
-    printf ("Option -%c requires a value greater than 0.\n", flag);
+/*
+ * Checks if a user provided argument is within range.
+ * lower_exclusive: non-zero indicates the lower bound is exclusive
+ * upper_exclusive: non-zero indicates the upper bound is exclusive
+ */
+void check_arg_range (char flag, double user_arg, int32_t min, int32_t max,
+                      int32_t lower_exclusive, int32_t upper_exclusive) {
+  if ( (user_arg < min && lower_exclusive == 0) || 
+       (user_arg > max && upper_exclusive == 0) ) {
+    printf ("Option -%c requires a value in range [%d,%d].\n", flag, min, max);
+    exit(1);
+  } else if ( (user_arg <= min && lower_exclusive != 0) || 
+              (user_arg >  max && upper_exclusive == 0) ) {
+    printf ("Option -%c requires a value in range (%d,%d].\n", flag, min, max);
+    exit(1);
+  } else if ( (user_arg <  min && lower_exclusive == 0) || 
+              (user_arg >= max && upper_exclusive != 0) ) {
+    printf ("Option -%c requires a value in range [%d,%d).\n", flag, min, max);
+    exit(1);
+  } else if ( (user_arg <= min && lower_exclusive != 0) ||
+              (user_arg >= max && upper_exclusive != 0) ) {
+    printf ("Option -%c requires a value in range (%d,%d).\n", flag, min, max);
     exit(1);
   }
   return;
 }
 
-
 enum scaling_method{X_FACTOR, TO_WIDTH, TO_HEIGHT, ALLOWABLE_DIE};
+enum image_file_type{JPG, PNG};
 
 int main(int argc, char *argv[])
 {
@@ -47,16 +67,18 @@ int main(int argc, char *argv[])
   uint8_t Y;
 
   // options
-  char         *input_filepath_ptr = "input.jpg";
-  char         *output_filepath_ptr = "output.jpg";
-  uint8_t      scaling_method_selected = 0;
-  enum         scaling_method selected_scaling_method = X_FACTOR;
-  double       scaling_factor = 0.05;
-  uint32_t     scaling_limit = 0;
-  char         *output_txt_filepath_ptr = "output.txt";
-  uint8_t      list_output_enabled = 0;
-  uint8_t      invert_colors = 0;
-  uint8_t      jpeg_quality = 85;
+  char        *input_filepath_ptr = "input.jpg";
+  char        *output_filepath_ptr = "output.jpg";
+  enum        scaling_method selected_scaling_method = X_FACTOR;
+  uint8_t     scaling_method_selected = 0;
+  double      scaling_factor = 0.05;
+  int32_t    scaling_limit = 0;
+  char        *output_txt_filepath_ptr = "output.txt";
+  uint8_t     list_output_enabled = 0;
+  uint8_t     invert_colors = 0;
+  uint8_t     jpeg_quality = 85;
+  enum        image_file_type output_file_type = JPG;
+  uint8_t     output_type_selected = 0;
 
   uint32_t c,i;
  
@@ -74,7 +96,7 @@ int main(int argc, char *argv[])
         if (scaling_method_selected == 0) {
           selected_scaling_method = X_FACTOR;
           scaling_factor = atof(optarg);
-          check_scale_arg('x', scaling_factor);
+          check_arg_range('x', scaling_factor, 0, INT_MAX, 1, 0);
           scaling_method_selected = 1;
         } else {
           printf("Too many scaling options.\n");
@@ -85,7 +107,7 @@ int main(int argc, char *argv[])
         if (scaling_method_selected == 0) {
           selected_scaling_method = TO_WIDTH;
           scaling_limit = atoi(optarg);
-          check_scale_arg('w', (double) scaling_limit);
+          check_arg_range('w', (double) scaling_limit, 1, INT_MAX, 0, 0);
           scaling_method_selected = 1;
         } else {
           printf("Too many scaling options.\n");
@@ -96,7 +118,7 @@ int main(int argc, char *argv[])
         if (scaling_method_selected == 0) {
           selected_scaling_method = TO_HEIGHT;
           scaling_limit = atoi(optarg);
-          check_scale_arg('h', (double) scaling_limit);
+          check_arg_range('h', (double) scaling_limit, 1, INT_MAX, 0, 0);
           scaling_method_selected = 1;
         } else {
           printf("Too many scaling options.\n");
@@ -107,7 +129,7 @@ int main(int argc, char *argv[])
         if (scaling_method_selected == 0) {
           selected_scaling_method = ALLOWABLE_DIE;
           scaling_limit = atoi(optarg);
-          check_scale_arg('m', (double) scaling_limit);
+          check_arg_range('m', (double) scaling_limit, 1, INT_MAX, 0, 0);
           scaling_method_selected = 1;
         } else {
           printf("Too many scaling options.\n");
@@ -134,11 +156,24 @@ int main(int argc, char *argv[])
         invert_colors = 1;
         break;
       case 'j':
-        jpeg_quality = atoi(optarg);
-        // TODO check range
+        if (output_type_selected == 0) {
+          output_file_type = JPG;
+          jpeg_quality = atoi(optarg);
+          check_arg_range('j', jpeg_quality, 0, 100, 0, 0);
+          output_type_selected = 1;
+        } else {
+          printf("Conflicting output file type options. -j conflicts with -p. \n");
+          return 1;
+        }
         break;
       case 'p':
-        // TODO add output format enum
+        if (output_type_selected == 0) {
+          output_file_type = PNG;
+          output_type_selected = 1;
+        } else {
+          printf("Conflicting output file type options. -p conflicts with -j. \n");
+          return 1;
+        }
         break;
       case '?':
         if (optopt == 'i' || optopt == 'o' || optopt == 'x' || optopt == 'w' || 
@@ -219,6 +254,7 @@ int main(int argc, char *argv[])
   Y = 0;
   printf("%d, ", Y);
 
+  if ()
   //stbi_write_png(output_filepath_ptr, resized_width, resized_height, input_channels, resized_img, 0);
   stbi_write_jpg(output_filepath_ptr, resized_width, resized_height, input_channels, resized_img, jpeg_quality);
   //stbi_write_jpg("output_gray.jpg", out_width, out_height, gray_channels, grayscale_pixels, 85);
