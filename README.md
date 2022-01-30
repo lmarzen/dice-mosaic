@@ -69,3 +69,15 @@ For all white die(w/ black dots) use './dice-mosaic -c w'
 <ul>
 Invert(flip) the colors of the image.
 </ul>
+-j [jpg_quality]
+<ul>
+Set the output image's JPEG quality setting. Integer from 0-100. Default is 85.
+</ul><ul>
+Cannot be used in conjunction with -p.
+</ul>
+-p
+<ul>
+Set the output image format to png.
+</ul><ul>
+Cannot be used in conjunction with -j.
+</ul>

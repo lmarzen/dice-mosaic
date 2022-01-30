@@ -56,12 +56,13 @@ int main(int argc, char *argv[])
   char         *output_txt_filepath_ptr = "output.txt";
   uint8_t      list_output_enabled = 0;
   uint8_t      invert_colors = 0;
+  uint8_t      jpeg_quality = 85;
 
   uint32_t c,i;
  
   // process option flags
   opterr = 0;
-  while ((c = getopt (argc, argv, "i:o:x:w:h:m:l:c:f")) != -1) {
+  while ((c = getopt (argc, argv, "i:o:x:w:h:m:l:c:fj:p")) != -1) {
     switch (c) {
       case 'i':
         input_filepath_ptr = optarg;
@@ -131,6 +132,13 @@ int main(int argc, char *argv[])
         break;
       case 'f':
         invert_colors = 1;
+        break;
+      case 'j':
+        jpeg_quality = atoi(optarg);
+        // TODO check range
+        break;
+      case 'p':
+        // TODO add output format enum
         break;
       case '?':
         if (optopt == 'i' || optopt == 'o' || optopt == 'x' || optopt == 'w' || 
@@ -211,8 +219,8 @@ int main(int argc, char *argv[])
   Y = 0;
   printf("%d, ", Y);
 
-  //stbi_write_png("output_color.png", out_width, out_height, channels, output_pixels, 0);
-  stbi_write_jpg(output_filepath_ptr, resized_width, resized_height, input_channels, resized_img, 85);
+  //stbi_write_png(output_filepath_ptr, resized_width, resized_height, input_channels, resized_img, 0);
+  stbi_write_jpg(output_filepath_ptr, resized_width, resized_height, input_channels, resized_img, jpeg_quality);
   //stbi_write_jpg("output_gray.jpg", out_width, out_height, gray_channels, grayscale_pixels, 85);
 
   stbi_image_free(resized_img);
