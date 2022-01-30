@@ -25,25 +25,17 @@ Output image filename or path. Output format is .jpg.
 </ul><ul>
 Default  is 'output.jpg`
 </ul>
--s [number]
+-s [x,w,h] [number]
 <ul>
-Factor to scale input image by. Must be greater than 0. After scaling, 1 pixel is equivalent to 1 dice.
+Scaling option determines how to (down)scale the input image before it is converted to dice. Aspect ratio is always maintained. After scaling, each pixel will correspond to a single dice.
 </ul><ul>
-Default is 0.05
-</ul><ul>              
-Cannot be used in conjunction with -w or -h.
-</ul>
--w [number]
-<ul>
-Alternative scaling option, will scale an image to a specified number of dice in width while maintaining aspect ratio. Must be an integer greater than 0.
+-s x [scale_factor] will scale the input image by a given factor. Must be greater than 0. Default is 0.05 (this is the default scaling behavior if -s is not specified)
 </ul><ul>
-Cannot be used in conjunction with -s or -h.
-</ul>
--h [number]
-<ul>
-Alternative scaling option, will scale an image to a specified number of dice in height while mainataining aspect ratio. Must be an integer greater than 0.
+-s w [width] will scale the input image to the specified width while maintaining the aspect ratio. Must be an integer greater than 0.
 </ul><ul>
-Cannot be used in conjunction with -s or -w.
+-s h [height] will scale the input image to the specified height while maintaining the aspect ratio. Must be an integer greater than 0.
+</ul><ul>
+-s d [max_number_of_die] will scale the input image as large as possible while not exceed the specified number of die. Must be an integer greater than 0.
 </ul>
 -l [filename]
 <ul>
@@ -51,13 +43,13 @@ Will output a text file containing a list of dice values.
 </ul><ul>
 If no file is specified the list will be saved in 'output.txt'.
 </ul>
--c [b,w]
+-c [m,b,w]
 <ul>
-For all black die(w/ white dots) use 'dice-mosaic -c b'
+For mix of black and white die use 'dice-mosaic -c m'. (this is the default if -c is not specified)
 </ul><ul>
-For all white die(w/ black dots) use 'dice-mosaic -c w'
+For all black die(w/ white dots) use 'dice-mosaic -c b'.
 </ul><ul>
-Default is to use a mix of both black and white to achieve 12 grayscale values.
+For all white die(w/ black dots) use 'dice-mosaic -c w'.
 </ul>
 -f
 <ul>

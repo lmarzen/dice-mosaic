@@ -34,24 +34,31 @@ int main(int argc, char *argv[])
 	int resized_width, resized_height;
   int Y;
 
-  // input flags
-  int aflag = 0;
-  char *bvalue = NULL;
-  char *cvalue = NULL;
+  // default options
+  char *input_filepath_ptr = "input.jpg";
+  char *output_filepath_ptr = "output.jpg";
+
   int index;
   int c;
 
+  // process option flags
   opterr = 0;
-  while ((c = getopt (argc, argv, "a:b:c:")) != -1) {
+  while ((c = getopt (argc, argv, "i:o:s::")) != -1) {
     switch (c)
       {
-      case 'a':
-        aflag = atoi(optarg);
+      case 'i':
+        input_filepath_ptr = optarg;
         break;
-      case 'b':
-        bvalue = optarg;
+      case 'o':
+        output_filepath_ptr = optarg;
         break;
-      case 'c':
+      case 's':
+        cvalue = optarg;
+        break;
+      case 'w':
+        cvalue = optarg;
+        break;
+      case 'h':
         cvalue = optarg;
         break;
       case '?':
@@ -65,16 +72,17 @@ int main(int argc, char *argv[])
                    optopt);
         return 1;
       default:
-        abort ();
+        return 1;
       }
   }
-
-  printf ("aflag = %d, bflag = %s, cvalue = %s\n",
-          aflag, bvalue, cvalue);
 
   for (index = optind; index < argc; index++) {
     printf ("Non-option argument %s\n", argv[index]);
   }
+
+  //debug
+  printf ("input_filepath = %s\n", input_filepath_ptr);
+  printf ("output_filepath = %s\n", output_filepath_ptr);
   
 
   //debug
@@ -82,7 +90,7 @@ int main(int argc, char *argv[])
   //double time_taken = 0;
 
   // read input image to memory
-	input_img = stbi_load(argv[1], &input_width, &input_height, &input_channels, 0);
+	input_img = stbi_load(input_filepath_ptr, &input_width, &input_height, &input_channels, 0);
 
   // allocate memory for resized image
 	resized_width = input_width/20;
@@ -113,7 +121,7 @@ int main(int argc, char *argv[])
   printf("%d, ", Y);
 
   //stbi_write_png("output_color.png", out_width, out_height, channels, output_pixels, 0);
-  stbi_write_jpg("output.jpg", resized_width, resized_height, input_channels, resized_img, 85);
+  stbi_write_jpg(output_filepath_ptr, resized_width, resized_height, input_channels, resized_img, 85);
   //stbi_write_jpg("output_gray.jpg", out_width, out_height, gray_channels, grayscale_pixels, 85);
 
   stbi_image_free(resized_img);
