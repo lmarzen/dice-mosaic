@@ -81,3 +81,7 @@ Set the output image format to png.
 </ul><ul>
 Cannot be used in conjunction with -j.
 </ul>
+-d [cost_per_dice]
+<ul>
+When this input is given the program will calculate the total cost of the mural in USD.
+</ul>

@@ -72,19 +72,20 @@ int main(int argc, char *argv[])
   enum        scaling_method selected_scaling_method = X_FACTOR;
   uint8_t     scaling_method_selected = 0;
   double      scaling_factor = 0.05;
-  int32_t    scaling_limit = 0;
+  int32_t     scaling_limit = 0;
   char        *output_txt_filepath_ptr = "output.txt";
   uint8_t     list_output_enabled = 0;
   uint8_t     invert_colors = 0;
   uint8_t     jpeg_quality = 85;
   enum        image_file_type output_file_type = JPG;
   uint8_t     output_type_selected = 0;
+  double      cost_per_dice = -1;
 
   uint32_t c,i;
  
   // process option flags
   opterr = 0;
-  while ((c = getopt (argc, argv, "i:o:x:w:h:m:l:c:fj:p")) != -1) {
+  while ((c = getopt (argc, argv, "i:o:x:w:h:m:l:c:fj:pd:")) != -1) {
     switch (c) {
       case 'i':
         input_filepath_ptr = optarg;
@@ -175,9 +176,16 @@ int main(int argc, char *argv[])
           return 1;
         }
         break;
+      case 'd':
+        if (output_type_selected == 0) {
+          cost_per_dice = atof(optarg);
+          check_arg_range('x', cost_per_dice, 0, INT_MAX, 1, 0);
+        }
+        break;
       case '?':
         if (optopt == 'i' || optopt == 'o' || optopt == 'x' || optopt == 'w' || 
-            optopt == 'h' || optopt == 'm' || optopt == 'l' || optopt == 'c')
+            optopt == 'h' || optopt == 'm' || optopt == 'l' || optopt == 'c' ||
+            optopt == 'd' )
           fprintf (stderr, "Option -%c requires an argument.\n", optopt);
         else if (isprint (optopt))
           fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -254,13 +262,17 @@ int main(int argc, char *argv[])
   Y = 0;
   printf("%d, ", Y);
 
-  if ()
   //stbi_write_png(output_filepath_ptr, resized_width, resized_height, input_channels, resized_img, 0);
   stbi_write_jpg(output_filepath_ptr, resized_width, resized_height, input_channels, resized_img, jpeg_quality);
   //stbi_write_jpg("output_gray.jpg", out_width, out_height, gray_channels, grayscale_pixels, 85);
 
   stbi_image_free(resized_img);
 
-return 0;
-}
+  // TODO color image according to option
+  // TODO output finished image in jpg or png according to option
+  // TODO calculate total cost according to option
 
+  // TODO print useful stats (diminsions, total dice, etc)
+
+  return 0;
+}
