@@ -1,11 +1,11 @@
 # dice-mosaic
 Generate dice mosaics from jpeg/png images. Written in C.
 
-Default options will attempt to read from 'input.jpg' in the same directory, scale the image by 0.05, then convert each pixel to grayscale before generating a dice mosaic using a mix of black and white dice and saving the dice mosaic to 'output.jpg'.
+Default options will attempt to read from 'input.jpg' in the same directory, scale the image by 0.05, then convert each pixel to grayscale before generating a dice mosaic using a mix of black/white dice and saving the dice mosaic to 'output.jpg'.
 
-For all black die(w/ white dots) use 'dice-mosaic -c b'
+For all black die(w/ white dots) use './dice-mosaic -c b'
 
-For all white die(w/ black dots) use 'dice-mosaic -c w'
+For all white die(w/ black dots) use './dice-mosaic -c w'
 
 
 
@@ -45,11 +45,11 @@ If no file is specified the list will be saved in 'output.txt'.
 </ul>
 -c [m,b,w]
 <ul>
-For mix of black and white die use 'dice-mosaic -c m'. (this is the default if -c is not specified)
+For mix of black and white die use './dice-mosaic -c m'. (this is the default if -c is not specified)
 </ul><ul>
-For all black die(w/ white dots) use 'dice-mosaic -c b'.
+For all black die(w/ white dots) use './dice-mosaic -c b'.
 </ul><ul>
-For all white die(w/ black dots) use 'dice-mosaic -c w'.
+For all white die(w/ black dots) use './dice-mosaic -c w'.
 </ul>
 -f
 <ul>
