@@ -1,11 +1,11 @@
 # dice-mosaic
 Generate dice mosaics from jpeg/png images. Written in C.
 
-Default options will attempt to read from 'input.jpg' in the same directory, scale the image by 0.05, then convert each pixel to grayscale before generating a dice mosaic using a mix of black and white dice and saving the dice mosaic to 'output.jpg'.
+Default options will attempt to read from 'input.jpg' in the same directory, scale the image by 0.05, then convert each pixel to grayscale before generating a dice mosaic using a mix of black and white dice and saving the dice mosaic to 'output.png'.
 
-For all black die(w/ white dots) use './dice-mosaic -c b'
+For all black die(w/ white dots) use './dice-mosaic -g b'
 
-For all white die(w/ black dots) use './dice-mosaic -c w'
+For all white die(w/ black dots) use './dice-mosaic -g w'
 
 
 
@@ -21,9 +21,9 @@ Default is 'input.jpg'
 </ul>
 -o [filename]
 <ul>
-Output image filename or path. Output format is .jpg.
+Output image filename or path. Default output format is .png.
 </ul><ul>
-Default  is 'output.jpg`
+Default  is 'output.png`
 </ul>
 -x [scale_factor]
 <ul>
@@ -57,31 +57,53 @@ Will output a text file containing a list of dice values.
 </ul><ul>
 If no file is specified the list will be saved in 'output.txt'.
 </ul>
--c [m,b,w]
+-g [m,b,w]
 <ul>
-For mix of black and white die use './dice-mosaic -c m'. (this is the default if -c is not specified) 
+For mix of black and white die use './dice-mosaic -g m'. (this is the default if -g is not specified) 
 </ul><ul>
-For all black die(w/ white dots) use './dice-mosaic -c b'
+For all black die(w/ white dots) use './dice-mosaic -g b'
 </ul><ul>
-For all white die(w/ black dots) use './dice-mosaic -c w'
-</ul>
--f
-<ul>
-Invert(flip) the colors of the image.
+For all white die(w/ black dots) use './dice-mosaic -g w'
 </ul>
 -j [jpg_quality]
 <ul>
-Set the output image's JPEG quality setting. Integer from 0-100. Default is 85.
+Set the output image's JPEG quality setting. Integer from 0-100. High quality is 80-90.
 </ul><ul>
 Cannot be used in conjunction with -p.
 </ul>
 -p
 <ul>
-Set the output image format to png.
+Set the output image format to png. (this is the default if -j or -p is not specified)
 </ul><ul>
 Cannot be used in conjunction with -j.
 </ul>
+-c [contrast_modifier]
+<ul>
+Change the contrast. a > 1 means more contrast, 0 < a < 1 means less contrast.
+</ul><ul>
+The value of a pixel is determined by the following function: f(x) = a(x) + b
+</ul><ul>
+Default is a=1.0
+</ul>
+-b [brightness_modifier]
+<ul>
+Change the brightness.
+</ul><ul>
+The value of a pixel is determined by the following function: f(x) = a(x) + b
+</ul><ul>
+Default is b=0.0
+</ul>
+-r [dice_resolution]
+<ul>
+Set the resolution of the dice that make up the mosaic. [dice_resolution] is the length of the sides of each dice. Must be an integer that is at least 16.
+</ul><ul>
+Default is 25
+</ul>
 -d [cost_per_dice]
 <ul>
-When this input is given the program will calculate the total cost of the mosaic in USD.
+When this input is given the program will calculate the total cost of the mosaic. (Assumes USD)
+</ul>
+-s [dice_size]
+<ul>
+When this input is given the program will calculate the total size of the mural. (Assumes inches) (0.63in (16mm) is most common)
 </ul>
