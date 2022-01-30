@@ -25,6 +25,17 @@
   printf("program took an average of %f seconds to execute\n", time_taken / 100);
 */
 
+void check_scale_arg (char flag, double user_arg) {
+  if (user_arg <= 0) {
+    printf ("Option -%c requires a value greater than 0.\n", flag);
+    exit(1);
+  }
+  return;
+}
+
+
+enum scaling_method{X_FACTOR, TO_WIDTH, TO_HEIGHT, ALLOWABLE_DIE};
+
 int main(int argc, char *argv[])
 {
 	unsigned char* input_img;
@@ -32,48 +43,86 @@ int main(int argc, char *argv[])
   //unsigned char* output_img;
 	int input_width, input_height, input_channels;
 	int resized_width, resized_height;
+  size_t resized_img_size;
   int Y;
 
-  // default options
-  char *input_filepath_ptr = "input.jpg";
-  char *output_filepath_ptr = "output.jpg";
+  // options
+  char         *input_filepath_ptr = "input.jpg";
+  char         *output_filepath_ptr = "output.jpg";
+  int          scaling_method_selected = 0;
+  enum         scaling_method selected_scaling_method = X_FACTOR;
+  double       scaling_factor = 0.05;
+  int          scaling_limit = 0;
 
   int index;
   int c;
 
   // process option flags
   opterr = 0;
-  while ((c = getopt (argc, argv, "i:o:s::")) != -1) {
-    switch (c)
-      {
+  while ((c = getopt (argc, argv, "i:o:x:w:h:m:l:c:f")) != -1) {
+    switch (c) {
       case 'i':
         input_filepath_ptr = optarg;
         break;
       case 'o':
         output_filepath_ptr = optarg;
         break;
-      case 's':
-        cvalue = optarg;
+      case 'x':
+        if (scaling_method_selected == 0) {
+          selected_scaling_method = X_FACTOR;
+          scaling_factor = atof(optarg);
+          check_scale_arg('x', scaling_factor);
+          scaling_method_selected = 1;
+        } else {
+          printf("Too many scaling options.\n");
+          return 1;
+        }
         break;
       case 'w':
-        cvalue = optarg;
+        if (scaling_method_selected == 0) {
+          selected_scaling_method = TO_WIDTH;
+          scaling_limit = atoi(optarg);
+          check_scale_arg('w', (double) scaling_limit);
+          scaling_method_selected = 1;
+        } else {
+          printf("Too many scaling options.\n");
+          return 1;
+        }
         break;
       case 'h':
-        cvalue = optarg;
+        if (scaling_method_selected == 0) {
+          selected_scaling_method = TO_HEIGHT;
+          scaling_limit = atoi(optarg);
+          check_scale_arg('h', (double) scaling_limit);
+          scaling_method_selected = 1;
+        } else {
+          printf("Too many scaling options.\n");
+          return 1;
+        }
+        break;
+      case 'm':
+        if (scaling_method_selected == 0) {
+          selected_scaling_method = ALLOWABLE_DIE;
+          scaling_limit = atoi(optarg);
+          check_scale_arg('m', (double) scaling_limit);
+          scaling_method_selected = 1;
+        } else {
+          printf("Too many scaling options.\n");
+          return 1;
+        }
         break;
       case '?':
-        if (optopt == 'c')
+        if (optopt == 'i' || optopt == 'o' || optopt == 'x' || optopt == 'w' || 
+            optopt == 'h' || optopt == 'm' || optopt == 'l' || optopt == 'c')
           fprintf (stderr, "Option -%c requires an argument.\n", optopt);
         else if (isprint (optopt))
           fprintf (stderr, "Unknown option `-%c'.\n", optopt);
         else
-          fprintf (stderr,
-                   "Unknown option character `\\x%x'.\n",
-                   optopt);
+          fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
         return 1;
       default:
         return 1;
-      }
+    }
   }
 
   for (index = optind; index < argc; index++) {
@@ -83,6 +132,8 @@ int main(int argc, char *argv[])
   //debug
   printf ("input_filepath = %s\n", input_filepath_ptr);
   printf ("output_filepath = %s\n", output_filepath_ptr);
+  printf ("scaling_factor = %f\n", scaling_factor);
+  printf ("scaling_limit = %d\n", scaling_limit);
   
 
   //debug
@@ -93,9 +144,27 @@ int main(int argc, char *argv[])
 	input_img = stbi_load(input_filepath_ptr, &input_width, &input_height, &input_channels, 0);
 
   // allocate memory for resized image
-	resized_width = input_width/20;
-	resized_height = input_height/20;
-  size_t resized_img_size = resized_width * resized_height * input_channels;
+  switch (selected_scaling_method) {
+    case X_FACTOR:
+      resized_width = ceil(input_width * scaling_factor);
+      resized_height = ceil(input_height * scaling_factor);
+      break;
+    case TO_WIDTH:
+      resized_width = scaling_limit;
+      resized_height = ceil( ((double) input_height) / input_width * scaling_limit);
+      break;
+    case TO_HEIGHT:
+      resized_height = scaling_limit;
+      resized_width = ceil( ((double) input_width) / input_height * scaling_limit);
+      break;
+    case ALLOWABLE_DIE:
+
+      break;
+    default:
+      return 1;
+  }
+
+  resized_img_size = resized_width * resized_height * input_channels;
 	resized_img = (unsigned char*) malloc(resized_img_size);
   if(resized_img == NULL) {
       printf("Unable to allocate memory for the output image.\n");
