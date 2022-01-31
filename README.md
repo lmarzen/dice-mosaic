@@ -3,25 +3,23 @@ Generate dice mosaics from jpeg/png images. Portable and written in C.
 
 Default options will attempt to read from 'input.jpg' in the same directory, scale the image by 0.05, then convert each pixel to grayscale before generating a dice mosaic using  black die(w/ white dots) and saving the dice mosaic to 'output.png'.
 
-
-
-For a mix of black and white die use './dice-mosaic -g m'.
-
-GNU General Public License v3.0.
-
 Usage
 ---
 Example: `./dice-mosaic -i images/moon.jpg -o images/moon_black_dice.png`
 
-![moon black dice](images/moon_black_dice.png)
+![moon black dice](examples/moon_black_dice.png)
 
 For all white die(w/ black dots) use the '-g w' flag. './dice-mosaic -g w'
 
 Example: `./dice-mosaic -i images/moon.jpg -o images/moon_white_dice.png -g w`
 
-![moon white dice](images/moon_white_dice.png)
+![moon white dice](examples/moon_white_dice.png)
 
+Here is an example of a mixed(white and black) die mosaic that was processed with increased contrast and brightness, and scaled the largest resolution while not exceeding 48,000 die. Additionally the option -l [filename], indicating that the program should output a text file containing a map of dice values.
 
+Example: `./dice-mosaic -i images/sg.jpg -o images/sg_dice.png -b 8 -c 1.17 -g m -m 48000 -l images/sg.txt`
+
+![sg dice](examples/sg_dice.png)
 
 Options
 ---
@@ -65,9 +63,7 @@ Cannot be used in conjunction with -x, -w, or -h.
 </ul>
 -l [filename]
 <ul>
-Will output a text file containing a list of dice values.
-</ul><ul>
-If no file is specified the list will be saved in 'output.txt'.
+Will output a text file containing a list of dice values, at the specified path.
 </ul>
 -g [m,b,w]
 <ul>
