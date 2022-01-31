@@ -1,5 +1,5 @@
 # dice-mosaic
-Generate dice mosaics from jpeg/png images. Portable and written in C.
+Generate dice mosaics from jpeg/png images.
 
 Default options will attempt to read from 'input.jpg' in the same directory, scale the image by 0.05, then convert each pixel to grayscale before generating a dice mosaic using  black die(w/ white dots) and saving the dice mosaic to 'output.png'.
 
