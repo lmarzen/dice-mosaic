@@ -20,15 +20,6 @@ enum scaling_method{X_FACTOR, TO_WIDTH, TO_HEIGHT, ALLOWABLE_DIE};
 enum image_file_type{JPG, PNG};
 enum dice_color{BW = -1, B = 0, W = 255};
 
-const int32_t DOT_POSITIONS[6][12] = {
-    { 0, 0},
-    { 1,-1, -1, 1},
-    { 1,-1,  0, 0, -1, 1},
-    {-1,-1,  1,-1, -1, 1,  1, 1},
-    {-1,-1,  1,-1, -1, 1,  1, 1,  0, 0},
-    {-1,-1,  1,-1, -1, 1,  1, 1, -1, 0,  1, 0}
-};
-
 /*
   struct timeval start, end;
   double time_taken = 0;
@@ -178,7 +169,7 @@ int main(int argc, char *argv[])
   uint32_t    output_type_selected = 0;
   double      contrast_modifier = 1;
   double      brightness_modifier = 0;
-  uint32_t    dice_resolution = 25;
+  uint32_t    dice_resolution = 40;
   double      cost_per_dice = -1;
   double      dice_size = -1;
   
@@ -287,7 +278,7 @@ int main(int argc, char *argv[])
         break;
       case 'r':
         dice_resolution = atoi(optarg);
-        check_arg_range(c, dice_resolution, 16, 255, 0, 0);
+        check_arg_range(c, dice_resolution, 12, INT_MAX, 0, 0);
         break;
       case 'd':
         cost_per_dice = atof(optarg);
@@ -300,7 +291,8 @@ int main(int argc, char *argv[])
       case '?':
         if (optopt == 'i' || optopt == 'o' || optopt == 'x' || optopt == 'w' || 
             optopt == 'h' || optopt == 'm' || optopt == 'l' || optopt == 'g' ||
-            optopt == 'r' || optopt == 'd' || optopt == 's' )
+            optopt == 'j' || optopt == 'c' || optopt == 'b' || optopt == 'r' || 
+            optopt == 'd' || optopt == 's' )
           fprintf (stderr, "Option -%c requires an argument.\n", optopt);
         else if (isprint (optopt))
           fprintf (stderr, "Unknown option `-%c'.\n", optopt);

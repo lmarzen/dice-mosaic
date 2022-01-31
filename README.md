@@ -97,7 +97,7 @@ Default is b=0.0
 <ul>
 Set the resolution of the dice that make up the mosaic. [dice_resolution] is the length of the sides of each dice. Must be an integer that is at least 16.
 </ul><ul>
-Default is 25
+Default is 40
 </ul>
 -d [cost_per_dice]
 <ul>
