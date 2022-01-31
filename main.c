@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
   uint32_t x_pixel;
   unsigned char *write_p;
 
-  // options
+  // default options
   char        *input_filepath_ptr = "input.jpg";
   char        *output_filepath_ptr = "output.png";
   enum        scaling_method selected_scaling_method = X_FACTOR;
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
   int32_t     scaling_limit = 0;
   char        *output_txt_filepath_ptr = "output.txt";
   uint32_t    grayscale_steps = 12;
-  enum        dice_color selected_dice_color = BW;
+  enum        dice_color selected_dice_color = B;
   uint32_t    list_output_enabled = 0;
   uint32_t    jpeg_quality = 85;
   enum        image_file_type output_file_type = PNG;
