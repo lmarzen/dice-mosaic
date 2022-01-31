@@ -9,13 +9,13 @@ Example: `./dice-mosaic -i images/moon.jpg -o images/moon_black_dice.png`
 
 ![moon black dice](examples/moon_black_dice.png)
 
-For all white die(w/ black dots) use the '-g w' flag. './dice-mosaic -g w'
+For all white die(w/ black dots) use the '-g w' flag.
 
 Example: `./dice-mosaic -i images/moon.jpg -o images/moon_white_dice.png -g w`
 
 ![moon white dice](examples/moon_white_dice.png)
 
-Here is an example of a mixed(white and black) die mosaic that was processed with increased contrast and brightness, and scaled the largest resolution while not exceeding 48,000 die. Additionally the option -l [filename], indicating that the program should output a text file containing a map of dice values.
+Here is an example of a mixed(white and black) die mosaic that was processed with increased contrast and brightness, and scaled the largest resolution while not exceeding 48,000 die. Additionally the option -l [filename], indicates that the program should output a text file containing a map of dice values.
 
 Example: `./dice-mosaic -i images/sg.jpg -o images/sg_dice.png -b 8 -c 1.17 -g m -m 48000 -l images/sg.txt`
 
