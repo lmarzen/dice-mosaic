@@ -75,7 +75,7 @@ For a mix of black and white die use './dice-mosaic -g m'.
 </ul>
 -j [jpg_quality]
 <ul>
-Set the output image's JPEG quality setting. Integer from 0-100. High quality is 80-90.
+Set the output image format to JPEG and set JPEG quality setting. Integer from 0-100. High quality is 80-90.
 </ul><ul>
 Cannot be used in conjunction with -p.
 </ul>
