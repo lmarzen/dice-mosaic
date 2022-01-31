@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
   double      scaling_factor = 0.05;
   int32_t     scaling_limit = 0;
   char        *output_txt_filepath_ptr = "output.txt";
-  uint32_t    grayscale_steps = 12;
+  uint32_t    grayscale_steps = 6;
   enum        dice_color selected_dice_color = B;
   uint32_t    list_output_enabled = 0;
   uint32_t    jpeg_quality = 85;
@@ -318,7 +318,6 @@ int main(int argc, char *argv[])
     default:
       return 1;
   }
-
   resized_img_size = resized_width * resized_height * input_channels;
 	resized_img = (unsigned char*) malloc(resized_img_size);
   if(resized_img == NULL) {
@@ -337,13 +336,13 @@ int main(int argc, char *argv[])
       printf("Unable to allocate memory for the output image.\n");
       return 1;
   }
-
+  
   // draw dice
   write_p = output_img;
   x_pixel = 0;
   for(unsigned char *read_p = resized_img; read_p != resized_img + resized_img_size; read_p += input_channels) {
     int32_t temp_selected_color = 0;
-    // Calculate grayscale values
+    // Calculate grayscale value
     // ITU-R Recommendation BT.601 luma calculation
     // https://en.wikipedia.org/wiki/Luma_%28video%29#Rec._601_luma_versus_Rec._709_luma_coefficients
     // same as OpenCV's grayscale conversion algorithm
@@ -353,7 +352,6 @@ int main(int argc, char *argv[])
             (*(read_p + 1) * 0.587)/*G*/ + 
             (*(read_p + 2) * 0.114)/*B*/);
 
-    
     // Apply contrast and brightness modifiers if nessesary.
     // OpenCV's brightness and contrast adjustments algorithm
     // https://docs.opencv.org/2.4/doc/tutorials/core/basic_linear_transform/basic_linear_transform.html
@@ -398,14 +396,71 @@ int main(int argc, char *argv[])
         }
       }
     } // finished coloring one dice
-    
+
+    // update row if we hit the end of our current row
     x_pixel += dice_resolution;
     write_p += dice_resolution;
     if (x_pixel > output_width - dice_resolution) {
       write_p += ((dice_resolution - 1) * output_width);
       x_pixel = 0;
     }
-  } // end draw dice for-loop
+  } // end draw dice coloring for-loop
+
+  // if list option is enabled write all dice values to txt file
+  if (list_output_enabled == 1) {
+    FILE *fp;
+
+    fp  = fopen (output_txt_filepath_ptr, "w");
+    if(fp == NULL) {
+      printf("Error: Text file could not be opened.\n");
+    }
+
+    x_pixel = 0;
+    for(unsigned char *read_p = resized_img; read_p != resized_img + resized_img_size; read_p += input_channels) {
+      // Calculate grayscale value
+      // Y = 0.299 * R + 0.587 * G + 0.114 * B
+      Y = (int32_t)((*read_p * 0.299)/*R*/ + 
+              (*(read_p + 1) * 0.587)/*G*/ + 
+              (*(read_p + 2) * 0.114)/*B*/);
+
+      // Apply contrast and brightness modifiers if nessesary.
+      // OpenCV's brightness and contrast adjustments algorithm
+      // https://docs.opencv.org/2.4/doc/tutorials/core/basic_linear_transform/basic_linear_transform.html
+      // f(x) = a(x) + b
+      if (contrast_modifier != 1 || brightness_modifier != 0) {
+        Y = contrast_modifier * Y + brightness_modifier;
+        snap_to_range(&Y);
+      }
+      dice_value = (int32_t) ceil( ((double) grayscale_steps) * Y / 255);
+      if (dice_value == 0) {
+        dice_value = 1;
+      }
+
+      // handle dice color options
+      if (selected_dice_color == BW) {
+        if (dice_value >= 7) {
+          // invert value for white dice
+          fprintf(fp, "w%d ", 13 - dice_value);
+        } else {
+          fprintf(fp, "b%d ", dice_value);
+        }
+      } else if (selected_dice_color == B) {
+        fprintf(fp, "%d ", dice_value);
+      } else if (selected_dice_color == W) {
+        // invert value for white dice
+        fprintf(fp, "%d ", 7 - dice_value);
+      }
+
+      // newline if we hit the end of our current row
+      x_pixel++;
+      if (x_pixel == resized_width) {
+        fprintf(fp, "\n");
+        x_pixel = 0;
+      }
+    }
+    fclose (fp);
+  }
+
   stbi_image_free(resized_img);
 
   // write image to file
