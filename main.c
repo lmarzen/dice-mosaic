@@ -478,10 +478,10 @@ int main(int argc, char *argv[])
     printf(" (%.2f in.)", dice_size * resized_height);
   }
   printf("\n");
-  printf("Total Dice: %12ld\n", resized_img_size);
+  printf("Total Dice: %12d\n", resized_width * resized_height);
   if (cost_per_dice != -1) {
     char cost_str[24];
-    sprintf(cost_str, "$%.2f", resized_img_size * cost_per_dice);
+    sprintf(cost_str, "$%.2f", resized_width * resized_height * cost_per_dice);
     printf("Total Cost: %12s\n",cost_str);
   }
   return 0;
