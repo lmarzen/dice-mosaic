@@ -424,8 +424,6 @@ int main(int argc, char *argv[])
               (*(read_p + 2) * 0.114)/*B*/);
 
       // Apply contrast and brightness modifiers if nessesary.
-      // OpenCV's brightness and contrast adjustments algorithm
-      // https://docs.opencv.org/2.4/doc/tutorials/core/basic_linear_transform/basic_linear_transform.html
       // f(x) = a(x) + b
       if (contrast_modifier != 1 || brightness_modifier != 0) {
         Y = contrast_modifier * Y + brightness_modifier;
