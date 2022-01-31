@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
   write_p = output_img;
   x_pixel = 0;
   for(unsigned char *read_p = resized_img; read_p != resized_img + resized_img_size; read_p += input_channels) {
-    int32_t temp_selected_color;
+    int32_t temp_selected_color = 0;
     // Calculate grayscale values
     // ITU-R Recommendation BT.601 luma calculation
     // https://en.wikipedia.org/wiki/Luma_%28video%29#Rec._601_luma_versus_Rec._709_luma_coefficients
