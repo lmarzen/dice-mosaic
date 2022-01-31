@@ -13,13 +13,13 @@ Usage
 ---
 Example: `./dice-mosaic -i images/moon.jpg -o images/moon_black_dice.png`
 
-![moon black dice]](images/moon_black_dice.png)
+![moon black dice](images/moon_black_dice.png)
 
 For all white die(w/ black dots) use the '-g w' flag. './dice-mosaic -g w'
 
 Example: `./dice-mosaic -i images/moon.jpg -o images/moon_white_dice.png -g w`
 
-![moon white dice]](images/moon_white_dice.png)
+![moon white dice](images/moon_white_dice.png)
 
 
 
