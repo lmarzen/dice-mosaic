@@ -338,7 +338,6 @@ int main(int argc, char *argv[])
       return 1;
   }
 
-
   // draw dice
   write_p = output_img;
   x_pixel = 0;
@@ -417,10 +416,20 @@ int main(int argc, char *argv[])
   }
   stbi_image_free(output_img);
 
-  // TODO calculate total cost according to option
-  // TODO calculate total size according to option
-
-  // TODO print useful stats (diminsions, total dice, etc)
-
+  printf("Width in Dice: %9d", resized_width);
+  if (dice_size != -1) {
+    printf(" (%.2f in.)", dice_size * resized_width);
+  }
+  printf("\nHeight in Dice: %8d", resized_height);
+  if (dice_size != -1) {
+    printf(" (%.2f in.)", dice_size * resized_height);
+  }
+  printf("\n");
+  printf("Total Dice: %12ld\n", resized_img_size);
+  if (cost_per_dice != -1) {
+    char cost_str[24];
+    sprintf(cost_str, "$%.2f", resized_img_size * cost_per_dice);
+    printf("Total Cost: %12s\n",cost_str);
+  }
   return 0;
 }
