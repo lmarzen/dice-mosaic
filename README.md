@@ -3,12 +3,25 @@ Generate dice mosaics from jpeg/png images. Portable and written in C.
 
 Default options will attempt to read from 'input.jpg' in the same directory, scale the image by 0.05, then convert each pixel to grayscale before generating a dice mosaic using  black die(w/ white dots) and saving the dice mosaic to 'output.png'.
 
-For all white die(w/ black dots) use './dice-mosaic -g w'
+
 
 For a mix of black and white die use './dice-mosaic -g m'.
 
-
 GNU General Public License v3.0.
+
+Usage
+---
+Example: `./dice-mosaic -i images/moon.jpg -o images/moon_black_dice.png`
+
+![moon black dice]](images/moon_black_dice.png)
+
+For all white die(w/ black dots) use the '-g w' flag. './dice-mosaic -g w'
+
+Example: `./dice-mosaic -i images/moon.jpg -o images/moon_white_dice.png -g w`
+
+![moon white dice]](images/moon_white_dice.png)
+
+
 
 Options
 ---
