@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <limits.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -79,6 +80,73 @@ void snap_to_range (int32_t *x) {
   return;
 }
 
+/*
+ * Returns 1 if the pixel should be colored as part of one of a dice's dot
+ *
+ * Takes parmeters for the dice resolution, row and column within a dice, 
+ * and the dice's value
+ */
+int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_value) {
+  int32_t dot_radius = dice_resolution / 10;
+  double dice_center = dice_resolution * 0.5;
+  int32_t x = j;
+  int32_t y = dice_resolution - i;
+  double dot_x;
+  double dot_y;
+  
+  if (dice_value >= 2) { // 2,3,4,5,6 have these dots
+    // dot at 1,-1
+    dot_x = dice_center + dice_resolution * 0.25 * 1;
+    dot_y = dice_center + dice_resolution * 0.25 * -1;
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+      return 1;
+    }
+    // dot at -1,1
+    dot_x = dice_center + dice_resolution * 0.25 * -1;
+    dot_y = dice_center + dice_resolution * 0.25 * 1;
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+      return 1;
+    }
+  }
+  if (dice_value >= 4) { // 4,5,6 have these dots
+    // dot at 1,1
+    dot_x = dice_center + dice_resolution * 0.25 * 1;
+    dot_y = dice_center + dice_resolution * 0.25 * 1;
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+      return 1;
+    }
+    // dot at -1,-1
+    dot_x = dice_center + dice_resolution * 0.25 * -1;
+    dot_y = dice_center + dice_resolution * 0.25 * -1;
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+      return 1;
+    }
+  }
+  if ( (dice_value % 2) == 1) { // 1,3,5 have this dot
+    // dot at 0,0
+    dot_x = dice_center;
+    dot_y = dice_center;
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+      return 1;
+    }
+  }
+  if (dice_value == 6) { // 6 has these dots
+    // dot at 1,0
+    dot_x = dice_center + dice_resolution * 0.25 * 1;
+    dot_y = dice_center;
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+      return 1;
+    }
+    // dot at -1,0
+    dot_x = dice_center + dice_resolution * 0.25 * -1;
+    dot_y = dice_center;
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
 	unsigned char* input_img;
@@ -91,6 +159,8 @@ int main(int argc, char *argv[])
   size_t output_img_size;
   int32_t Y;
   uint32_t dice_value;
+  uint32_t x_pixel;
+  unsigned char *write_p;
 
   // options
   char        *input_filepath_ptr = "input.jpg";
@@ -240,7 +310,7 @@ int main(int argc, char *argv[])
       default:
         return 1;
     }
-  } // end while-loop
+  } // end options while-loop
 
   for (i = optind; i < argc; i++) {
     printf ("Non-option argument %s\n", argv[i]);
@@ -294,22 +364,23 @@ int main(int argc, char *argv[])
       return 1;
   }
 
-  uint32_t x = 0;
-  unsigned char *write_p = output_img;
 
-  // Calculate greyscale values
-  // ITU-R Recommendation BT.601 luma calculation
-  // https://en.wikipedia.org/wiki/Luma_%28video%29#Rec._601_luma_versus_Rec._709_luma_coefficients
-  // same as OpenCV's grayscale conversion algorithm
-  // https://docs.opencv.org/2.4/modules/imgproc/doc/miscellaneous_transformations.html
-  // Y = 0.299 * R + 0.587 * G + 0.114 * B
+  // Draw dice
+  write_p = output_img;
+  x_pixel = 0;
   for(unsigned char *read_p = resized_img; read_p != resized_img + resized_img_size; read_p += input_channels) {
+    // Calculate grayscale values
+    // ITU-R Recommendation BT.601 luma calculation
+    // https://en.wikipedia.org/wiki/Luma_%28video%29#Rec._601_luma_versus_Rec._709_luma_coefficients
+    // same as OpenCV's grayscale conversion algorithm
+    // https://docs.opencv.org/2.4/modules/imgproc/doc/miscellaneous_transformations.html
+    // Y = 0.299 * R + 0.587 * G + 0.114 * B
     Y = (int32_t)((*read_p * 0.299)/*R*/ + 
             (*(read_p + 1) * 0.587)/*G*/ + 
             (*(read_p + 2) * 0.114)/*B*/);
 
     
-    // apply contrast and brightness modifiers if nessesary.
+    // Apply contrast and brightness modifiers if nessesary.
     // OpenCV's brightness and contrast adjustments algorithm
     // https://docs.opencv.org/2.4/doc/tutorials/core/basic_linear_transform/basic_linear_transform.html
     // f(x) = a(x) + b
@@ -322,48 +393,56 @@ int main(int argc, char *argv[])
       dice_value = 1;
     }
 
-    for (uint32_t i = 0; i < dice_resolution; i++) {
-      for (uint32_t j = 0; j < dice_resolution; j++) {
+    // color one dice
+    for (uint32_t j = 0; j < dice_resolution; j++) {
+      for (uint32_t i = 0; i < dice_resolution; i++) {
+        // left and top sides get a gray border (boarder between dice)
         if (i == 0 || j == 0) {
-          *(write_p + i + (j * output_width) ) = 50; // gray border between dice
-        } else if (selected_dice_color == BW) {
+          *(write_p + j + (i * output_width) ) = 50; 
+        // check if pixel is part of a dot, if so, set pixel to dot color
+        } else if (is_dot_pixel(dice_resolution, i, j, dice_value) == 1) { 
+            if (selected_dice_color == BW) {
+              if (dice_value <= 6) {
+                *(write_p + j + (i * output_width) ) = W;
+              } else {
+                *(write_p + j + (i * output_width) ) = B;
+              }
+            } else if (selected_dice_color == B) {
+              *(write_p + j + (i * output_width) ) = W;
+            } else if (selected_dice_color == W) {
+              *(write_p + j + (i * output_width) ) = B;
+            }
+        // otherwise the pixel is set pixel to dice color
+        } else if (selected_dice_color == BW) { 
           if (dice_value <= 6) {
-            *(write_p + i + (j * output_width) ) = B;
+            *(write_p + j + (i * output_width) ) = B;
           } else {
-            *(write_p + i + (j * output_width) ) = W;
+            *(write_p + j + (i * output_width) ) = W;
           }
         } else if (selected_dice_color == B || selected_dice_color == W) { 
-          *(write_p + i + (j * output_width) ) = selected_dice_color;
+          *(write_p + j + (i * output_width) ) = selected_dice_color;
         }
       }
-    }
+    } // finished coloring one dice
     
-    x += dice_resolution;
+    x_pixel += dice_resolution;
     write_p += dice_resolution;
-    if (x > output_width - dice_resolution) {
+    if (x_pixel > output_width - dice_resolution) {
       write_p += ((dice_resolution - 1) * output_width);
-      x = 0;
+      x_pixel = 0;
     }
-  }
-
-
-  // debug
-  //stbi_write_png(output_filepath_ptr, resized_width, resized_height, input_channels, resized_img, 0);
-  //stbi_write_jpg(output_filepath_ptr, resized_width, resized_height, input_channels, resized_img, jpeg_quality);
-  //stbi_write_jpg("output_gray.jpg", out_width, out_height, gray_channels, grayscale_pixels, 85);
+  } // end draw dice for-loop
+  stbi_image_free(resized_img);
 
   // write image to file
-  if (output_file_type == JPG) {
-    stbi_write_jpg(output_filepath_ptr, output_width, output_height, 1, output_img, jpeg_quality);
-  } else if (output_file_type == PNG) {
+  if (output_file_type == PNG) {
     stbi_write_png(output_filepath_ptr, output_width, output_height, 1, output_img, 0);
+  } else if (output_file_type == JPG) {
+    stbi_write_jpg(output_filepath_ptr, output_width, output_height, 1, output_img, jpeg_quality);
   }
-  
-  stbi_image_free(resized_img);
   stbi_image_free(output_img);
 
   // TODO color image according to option
-  // TODO output finished image in jpg or png according to option
   // TODO calculate total cost according to option
   // TODO calculate total size according to option
 
