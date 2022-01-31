@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
   size_t resized_img_size;
   size_t output_img_size;
   int32_t Y;
-  uint32_t dice_value;
+  int32_t dice_value;
   uint32_t x_pixel;
   unsigned char *write_p;
 
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
       break;
     case ALLOWABLE_DIE:
       resized_width = (int32_t) (sqrt(scaling_limit) * sqrt(input_width) / sqrt(input_height) );
-      resized_height = (uint32_t) (sqrt(scaling_limit) * sqrt(input_height) / sqrt(input_width) );
+      resized_height = (int32_t) (sqrt(scaling_limit) * sqrt(input_height) / sqrt(input_width) );
       break;
     default:
       return 1;
@@ -369,6 +369,7 @@ int main(int argc, char *argv[])
   write_p = output_img;
   x_pixel = 0;
   for(unsigned char *read_p = resized_img; read_p != resized_img + resized_img_size; read_p += input_channels) {
+    int32_t temp_selected_color;
     // Calculate grayscale values
     // ITU-R Recommendation BT.601 luma calculation
     // https://en.wikipedia.org/wiki/Luma_%28video%29#Rec._601_luma_versus_Rec._709_luma_coefficients
@@ -388,39 +389,39 @@ int main(int argc, char *argv[])
       Y = contrast_modifier * Y + brightness_modifier;
       snap_to_range(&Y);
     }
-    dice_value = ceil( ((double) grayscale_steps) * Y / 255);
+    dice_value = (int32_t) ceil( ((double) grayscale_steps) * Y / 255);
     if (dice_value == 0) {
       dice_value = 1;
+    }
+    // handle dice color options
+    if (selected_dice_color == BW) {
+      if (dice_value >= 7) {
+        // invert value for white dice
+        dice_value = 13 - dice_value;
+        temp_selected_color = 255;
+      } else {
+        temp_selected_color = 0;
+      }
+    } else if (selected_dice_color == B || selected_dice_color == W) {
+      if (selected_dice_color == W) {
+        // invert value for white dice
+        dice_value = 7 - dice_value;
+      }
+      temp_selected_color = selected_dice_color;
     }
 
     // color one dice
     for (uint32_t j = 0; j < dice_resolution; j++) {
       for (uint32_t i = 0; i < dice_resolution; i++) {
-        // left and top sides get a gray border (boarder between dice)
         if (i == 0 || j == 0) {
+          // left and top sides get a gray border (boarder between dice)
           *(write_p + j + (i * output_width) ) = 50; 
-        // check if pixel is part of a dot, if so, set pixel to dot color
         } else if (is_dot_pixel(dice_resolution, i, j, dice_value) == 1) { 
-            if (selected_dice_color == BW) {
-              if (dice_value <= 6) {
-                *(write_p + j + (i * output_width) ) = W;
-              } else {
-                *(write_p + j + (i * output_width) ) = B;
-              }
-            } else if (selected_dice_color == B) {
-              *(write_p + j + (i * output_width) ) = W;
-            } else if (selected_dice_color == W) {
-              *(write_p + j + (i * output_width) ) = B;
-            }
-        // otherwise the pixel is set pixel to dice color
-        } else if (selected_dice_color == BW) { 
-          if (dice_value <= 6) {
-            *(write_p + j + (i * output_width) ) = B;
-          } else {
-            *(write_p + j + (i * output_width) ) = W;
-          }
-        } else if (selected_dice_color == B || selected_dice_color == W) { 
-          *(write_p + j + (i * output_width) ) = selected_dice_color;
+          // pixel is part of a dice's dot
+            *(write_p + j + (i * output_width) ) = 255 - temp_selected_color;
+        } else {
+          // otherwise the pixel is set pixel to dice color
+          *(write_p + j + (i * output_width) ) = temp_selected_color;
         }
       }
     } // finished coloring one dice
@@ -442,7 +443,6 @@ int main(int argc, char *argv[])
   }
   stbi_image_free(output_img);
 
-  // TODO color image according to option
   // TODO calculate total cost according to option
   // TODO calculate total size according to option
 
