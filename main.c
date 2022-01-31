@@ -13,23 +13,9 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image/stb_image_resize.h"
 
-// debug
-#include <sys/time.h>
-
 enum scaling_method{X_FACTOR, TO_WIDTH, TO_HEIGHT, ALLOWABLE_DIE};
 enum image_file_type{JPG, PNG};
 enum dice_color{BW = -1, B = 0, W = 255};
-
-/*
-  struct timeval start, end;
-  double time_taken = 0;
-  gettimeofday(&start, NULL); // start timer
-
-  gettimeofday(&end, NULL); // stop timer
-  time_taken = end.tv_sec + end.tv_usec / 1e6 -
-               start.tv_sec - start.tv_usec / 1e6; // in seconds
-  printf("program took an average of %f seconds to execute\n", time_taken / 100);
-*/
 
 /*
  * Checks if a user provided argument is within range.
@@ -308,10 +294,6 @@ int main(int argc, char *argv[])
     printf ("Non-option argument %s\n", argv[i]);
   }
 
-  //debug
-  //struct timeval start, end;
-  //double time_taken = 0;
-
   // read input image to memory
 	input_img = stbi_load(input_filepath_ptr, &input_width, &input_height, &input_channels, 0);
 
@@ -357,7 +339,7 @@ int main(int argc, char *argv[])
   }
 
 
-  // Draw dice
+  // draw dice
   write_p = output_img;
   x_pixel = 0;
   for(unsigned char *read_p = resized_img; read_p != resized_img + resized_img_size; read_p += input_channels) {
