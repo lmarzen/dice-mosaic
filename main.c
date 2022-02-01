@@ -410,6 +410,14 @@ int main(int argc, char *argv[])
     }
   } // end draw dice coloring for-loop
 
+  // write image to file
+  if (output_file_type == PNG) {
+    stbi_write_png(output_filepath_ptr, output_width, output_height, 1, output_img, 0);
+  } else if (output_file_type == JPG) {
+    stbi_write_jpg(output_filepath_ptr, output_width, output_height, 1, output_img, jpeg_quality);
+  }
+  stbi_image_free(output_img);
+
   // if list option is enabled write all dice values to txt file
   if (list_output_enabled == 1) {
     FILE *fp;
@@ -464,14 +472,6 @@ int main(int argc, char *argv[])
   }
 
   stbi_image_free(resized_img);
-
-  // write image to file
-  if (output_file_type == PNG) {
-    stbi_write_png(output_filepath_ptr, output_width, output_height, 1, output_img, 0);
-  } else if (output_file_type == JPG) {
-    stbi_write_jpg(output_filepath_ptr, output_width, output_height, 1, output_img, jpeg_quality);
-  }
-  stbi_image_free(output_img);
 
   printf("Width in Dice: %9d", resized_width);
   if (dice_size != -1) {
