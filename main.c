@@ -124,7 +124,7 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
   return 0;
 }
 
-int main(int argc, char *argv[])
+int main (int argc, char *argv[])
 {
   unsigned char* input_img;
   unsigned char* resized_img;
