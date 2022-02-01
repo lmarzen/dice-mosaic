@@ -121,12 +121,11 @@ Getting Started
 You are welcome to compile the code from source if you want, otherwise here are instructions for how to get started.
 
 Linux or Windows:
-<ul>
-Clone repository `git clone https://github.com/lmarzen/dice-mosaic.git` or download and extract ZIP.
-</ul><ul>
-Open a terminal(or command prompt on Windows) in the folder that contains the dice-mosaic program.
-</ul><ul>
-Run the program by typing `./dice-mosaic` on linux or `dice-mosaic.exe` if on windows, followed by any arguments shown above.
-</ul><ul>
-Done.
-</ul>
+
+* Clone repository `git clone https://github.com/lmarzen/dice-mosaic.git` or download and extract ZIP.
+
+* Open a terminal(or command prompt on Windows) in the folder that contains the dice-mosaic program.
+
+* Run the program by typing `./dice-mosaic` on linux or `dice-mosaic.exe` if on windows, followed by any arguments shown above.
+
+* Done.
