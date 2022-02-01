@@ -1,5 +1,4 @@
 # Ignore photos folder
 .vscode
-dice-mosaic
 input.*
 output.*
