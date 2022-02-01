@@ -126,11 +126,11 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
 
 int main(int argc, char *argv[])
 {
-	unsigned char* input_img;
-	unsigned char* resized_img;
+  unsigned char* input_img;
+  unsigned char* resized_img;
   unsigned char* output_img;
-	int32_t input_width, input_height, input_channels;
-	int32_t resized_width, resized_height;
+  int32_t input_width, input_height, input_channels;
+  int32_t resized_width, resized_height;
   int32_t output_width, output_height;
   size_t resized_img_size;
   size_t output_img_size;
@@ -295,7 +295,11 @@ int main(int argc, char *argv[])
   }
 
   // read input image to memory
-	input_img = stbi_load(input_filepath_ptr, &input_width, &input_height, &input_channels, 0);
+  input_img = stbi_load(input_filepath_ptr, &input_width, &input_height, &input_channels, 0);
+  if(input_img == NULL) {
+      printf("Unable to allocate memory for the input image. Input image may not exist.\n");
+      return 1;
+  }
 
   // allocate memory for resized image
   switch (selected_scaling_method) {
@@ -319,13 +323,13 @@ int main(int argc, char *argv[])
       return 1;
   }
   resized_img_size = resized_width * resized_height * input_channels;
-	resized_img = (unsigned char*) malloc(resized_img_size);
+  resized_img = (unsigned char*) malloc(resized_img_size);
   if(resized_img == NULL) {
       printf("Unable to allocate memory for the resized image.\n");
       return 1;
   }
 
-	stbir_resize_uint8(input_img, input_width, input_height, 0, resized_img, resized_width, resized_height, 0, input_channels);
+  stbir_resize_uint8(input_img, input_width, input_height, 0, resized_img, resized_width, resized_height, 0, input_channels);
   stbi_image_free(input_img);
 
   output_width = dice_resolution * resized_width;
