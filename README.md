@@ -15,7 +15,7 @@ Example: `./dice-mosaic -i examples/moon.jpg -o examples/moon_white_dice.png -g 
 
 ![moon white dice](examples/moon_white_dice.png)
 
-Here is an example of a mixed(white and black) die mosaic that was processed with increased contrast and brightness, and scaled the largest resolution while not exceeding 48,000 die. Additionally the option -l [filename], indicates that the program should output a text file containing a map of dice values.
+Here is an example of a mixed(white and black) die mosaic that was processed with increased contrast and brightness, and scaled to the largest resolution possible while not exceeding 48,000 die. Additionally the option -l [filename], indicates that the program should output a text file containing a map of dice values.
 
 Example: `./dice-mosaic -i examples/sg.jpg -o examples/sg_dice.png -b 8 -c 1.17 -g m -m 48000 -l examples/sg.txt`
 
