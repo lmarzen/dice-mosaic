@@ -118,7 +118,7 @@ When this input is given the program will calculate the total size of the mural.
 
 Getting Started
 ---
-You are welcome to compile the code from source if you want, otherwise here are instructions for how to get started.
+You are welcome to compile the code from source, otherwise here are instructions for how to get started with the provided compiled binaries.
 
 Linux or Windows:
 
@@ -126,6 +126,6 @@ Linux or Windows:
 
 * Open a terminal(or command prompt on Windows) in the folder that contains the dice-mosaic program.
 
-* Run the program by typing `./dice-mosaic` on linux or `dice-mosaic.exe` if on windows, followed by any arguments shown above.
+* Run the program by typing `./dice-mosaic` if on linux or `dice-mosaic_x86.exe` if on windows 32-bit or `dice-mosaic_x64.exe` if on windows 64-bit, followed by any valid arguments.
 
 * Done.

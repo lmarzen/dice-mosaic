@@ -17,6 +17,11 @@ enum scaling_method{X_FACTOR, TO_WIDTH, TO_HEIGHT, ALLOWABLE_DIE};
 enum image_file_type{JPG, PNG};
 enum dice_color{BW = -1, B = 0, W = 255};
 
+// global variables
+// This is an array that hold the pixels values of the dice 1-6 in that order
+// so that they can easily be looked up after being computed once.
+int32_t *dice_arr;
+
 /*
  * Checks if a user provided argument is within range.
  * lower_exclusive: non-zero indicates the lower bound is exclusive
@@ -64,7 +69,11 @@ void snap_to_range (int32_t *x) {
  * and the dice's value
  */
 int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_value) {
-  int32_t dot_radius = dice_resolution / 10;
+  if (dice_value < 1 || dice_value > 6) {
+    return 0;
+  }
+  
+  int32_t dot_radius_sq = pow(dice_resolution / 10, 2);
   double dice_center = dice_resolution * 0.5;
   int32_t x = j;
   int32_t y = dice_resolution - i;
@@ -75,13 +84,13 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
     // dot at 1,-1
     dot_x = dice_center + dice_resolution * 0.25 * 1;
     dot_y = dice_center + dice_resolution * 0.25 * -1;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
       return 1;
     }
     // dot at -1,1
     dot_x = dice_center + dice_resolution * 0.25 * -1;
     dot_y = dice_center + dice_resolution * 0.25 * 1;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
       return 1;
     }
   }
@@ -89,13 +98,13 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
     // dot at 1,1
     dot_x = dice_center + dice_resolution * 0.25 * 1;
     dot_y = dice_center + dice_resolution * 0.25 * 1;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
       return 1;
     }
     // dot at -1,-1
     dot_x = dice_center + dice_resolution * 0.25 * -1;
     dot_y = dice_center + dice_resolution * 0.25 * -1;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
       return 1;
     }
   }
@@ -103,7 +112,7 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
     // dot at 0,0
     dot_x = dice_center;
     dot_y = dice_center;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
       return 1;
     }
   }
@@ -111,17 +120,46 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
     // dot at 1,0
     dot_x = dice_center + dice_resolution * 0.25 * 1;
     dot_y = dice_center;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
       return 1;
     }
     // dot at -1,0
     dot_x = dice_center + dice_resolution * 0.25 * -1;
     dot_y = dice_center;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < pow(dot_radius, 2) ) {
+    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
       return 1;
     }
   }
   return 0;
+}
+
+/*
+ * Initialize the values of each dice into a lookup array, dice_arr.
+ *
+ * dice_arr is effectively a 3 dimensional array with 7 dice, each dice is made
+ * up of x rows and x columns
+ * 
+ * The first dice in the array (index 0) is blank.
+ * Dice with values 1-6 are stored in indexes 1-6.
+ */
+void init_all_dice(int32_t dice_res) {
+  int32_t area = pow(dice_res, 2);
+  dice_arr = malloc(sizeof(dice_arr) * 6 * area);
+  if(dice_arr == NULL) {
+    printf("Unable to allocate memory for the dice lookup array. Dice resolution may be to high.\n");
+    exit(-1);
+  }
+
+  for (uint32_t k = 0; k < 7; k++) {
+    // do for a blank die(index 0) and each of the 6 die
+    for (uint32_t j = 0; j < dice_res; j++) {
+      for (uint32_t i = 0; i < dice_res; i++) {
+        dice_arr[(k * area) + (j * dice_res) + i] 
+          = is_dot_pixel(dice_res, i, j, k);
+      }
+    }
+  }
+  return;
 }
 
 int main (int argc, char *argv[])
@@ -325,8 +363,8 @@ int main (int argc, char *argv[])
   resized_img_size = resized_width * resized_height * input_channels;
   resized_img = (unsigned char*) malloc(resized_img_size);
   if(resized_img == NULL) {
-      printf("Unable to allocate memory for the resized image.\n");
-      return 1;
+    printf("Unable to allocate memory for the resized image.\n");
+    return 1;
   }
 
   stbir_resize_uint8(input_img, input_width, input_height, 0, resized_img, resized_width, resized_height, 0, input_channels);
@@ -337,9 +375,13 @@ int main (int argc, char *argv[])
   output_img_size = output_width * output_height; // grayscale only needs 1 channel
   output_img = (unsigned char*) malloc(output_img_size);
   if(output_img == NULL) {
-      printf("Unable to allocate memory for the output image.\n");
-      return 1;
+    printf("Unable to allocate memory for the output image.\n");
+    return 1;
   }
+
+  // initialize dice lookup array, dice_arr
+  init_all_dice(dice_resolution);
+  int32_t dice_area = dice_resolution * dice_resolution;
   
   // draw dice
   write_p = output_img;
@@ -391,7 +433,7 @@ int main (int argc, char *argv[])
         if (i == 0 || j == 0) {
           // left and top sides get a gray border (boarder between dice)
           *(write_p + j + (i * output_width) ) = 50; 
-        } else if (is_dot_pixel(dice_resolution, i, j, dice_value) == 1) { 
+        } else if (dice_arr[dice_value * dice_area + j * dice_resolution + i] == 1) { 
           // pixel is part of a dice's dot
             *(write_p + j + (i * output_width) ) = 255 - temp_selected_color;
         } else {
