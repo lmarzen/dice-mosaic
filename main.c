@@ -63,7 +63,7 @@ void snap_to_range (int32_t *x) {
 }
 
 /*
- * Returns 1 if the pixel should be colored as part of one of a dice's dot
+ * Returns 1 if the pixel should be colored as part of one of a dice's dots
  *
  * Takes parmeters for the dice resolution, row and column within a dice, 
  * and the dice's value
