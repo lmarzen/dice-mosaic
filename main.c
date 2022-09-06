@@ -18,7 +18,7 @@ enum image_file_type{JPG, PNG};
 enum dice_color{BW = -1, B = 0, W = 255};
 
 // global variables
-// This is an array that hold the pixels values of the dice 1-6 in that order
+// This is an array that stores the pixels values of the dice 1-6 in that order
 // so that they can easily be looked up after being computed once.
 int32_t *dice_arr;
 
@@ -319,9 +319,9 @@ int main (int argc, char *argv[])
             optopt == 'd' || optopt == 's' )
           fprintf (stderr, "Option -%c requires an argument.\n", optopt);
         else if (isprint (optopt))
-          fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+          fprintf (stderr, "Unknown option '-%c'.\n", optopt);
         else
-          fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
+          fprintf (stderr, "Unknown option character '\\x%x'.\n", optopt);
         return 1;
       default:
         return 1;
