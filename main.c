@@ -73,7 +73,7 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
     return 0;
   }
   
-  int32_t dot_radius_sq = pow(dice_resolution / 10, 2);
+  int32_t dot_radius_sq = dice_resolution * dice_resolution / 100;
   double dice_center = dice_resolution * 0.5;
   int32_t x = j;
   int32_t y = dice_resolution - i;
@@ -84,13 +84,13 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
     // dot at 1,-1
     dot_x = dice_center + dice_resolution * 0.25 * 1;
     dot_y = dice_center + dice_resolution * 0.25 * -1;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
+    if ( (x - dot_x)*(x - dot_x) + (y - dot_y)*(y - dot_y) < dot_radius_sq ) {
       return 1;
     }
     // dot at -1,1
     dot_x = dice_center + dice_resolution * 0.25 * -1;
     dot_y = dice_center + dice_resolution * 0.25 * 1;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
+    if ( (x - dot_x)*(x - dot_x) + (y - dot_y)*(y - dot_y) < dot_radius_sq ) {
       return 1;
     }
   }
@@ -98,13 +98,13 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
     // dot at 1,1
     dot_x = dice_center + dice_resolution * 0.25 * 1;
     dot_y = dice_center + dice_resolution * 0.25 * 1;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
+    if ( (x - dot_x)*(x - dot_x) + (y - dot_y)*(y - dot_y) < dot_radius_sq ) {
       return 1;
     }
     // dot at -1,-1
     dot_x = dice_center + dice_resolution * 0.25 * -1;
     dot_y = dice_center + dice_resolution * 0.25 * -1;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
+    if ( (x - dot_x)*(x - dot_x) + (y - dot_y)*(y - dot_y) < dot_radius_sq ) {
       return 1;
     }
   }
@@ -112,7 +112,7 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
     // dot at 0,0
     dot_x = dice_center;
     dot_y = dice_center;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
+    if ( (x - dot_x)*(x - dot_x) + (y - dot_y)*(y - dot_y) < dot_radius_sq ) {
       return 1;
     }
   }
@@ -120,13 +120,13 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
     // dot at 1,0
     dot_x = dice_center + dice_resolution * 0.25 * 1;
     dot_y = dice_center;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
+    if ( (x - dot_x)*(x - dot_x) + (y - dot_y)*(y - dot_y) < dot_radius_sq ) {
       return 1;
     }
     // dot at -1,0
     dot_x = dice_center + dice_resolution * 0.25 * -1;
     dot_y = dice_center;
-    if ( pow(x - dot_x, 2) + pow(y - dot_y, 2) < dot_radius_sq ) {
+    if ( (x - dot_x)*(x - dot_x) + (y - dot_y)*(y - dot_y) < dot_radius_sq ) {
       return 1;
     }
   }
@@ -143,7 +143,7 @@ int is_dot_pixel (int32_t dice_resolution, int32_t i, int32_t j, int32_t dice_va
  * Dice with values 1-6 are stored in indexes 1-6.
  */
 void init_all_dice(int32_t dice_res) {
-  int32_t area = pow(dice_res, 2);
+  int32_t area = dice_res * dice_res;
   dice_arr = malloc(sizeof(dice_arr) * 6 * area);
   if(dice_arr == NULL) {
     printf("Unable to allocate memory for the dice lookup array. Dice resolution may be to high.\n");

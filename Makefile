@@ -14,3 +14,5 @@ debug: main.c
 	gcc main.c -o dice-mosaic -Wall -lm -g
 clean:
 	rm -f *- dice-mosaic dice-mosaic_x86.exe dice-mosaic_x64.exe core
+openmp:
+	gcc main.c -o dice-mosaic -Wall -lm -fopenmp
