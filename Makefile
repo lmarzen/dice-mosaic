@@ -1,7 +1,4 @@
-dice-mosaic: main.c
-	gcc main.c -o dice-mosaic -Wall -O3 -lm
-	i686-w64-mingw32-gcc -o dice-mosaic_x86.exe main.c -Wall -O3
-	x86_64-w64-mingw32-gcc -o dice-mosaic_x64.exe main.c -Wall -O3
+all: linux win32 win64
 linux: main.c
 	gcc main.c -o dice-mosaic -Wall -O3 -lm
 win32: main.c
@@ -14,5 +11,3 @@ debug: main.c
 	gcc main.c -o dice-mosaic -Wall -lm -g
 clean:
 	rm -f *- dice-mosaic dice-mosaic_x86.exe dice-mosaic_x64.exe core
-openmp:
-	gcc main.c -o dice-mosaic -Wall -lm -fopenmp
